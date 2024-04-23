@@ -57,6 +57,9 @@ SetX argument is always a low byte (`%al`, `%r8b`, etc.)
 Conditional move instructions.
 ![06condmove](/img/06condmove.png)
 
+`Test` instruction executes logical AND for two operands, then set flags by the result.
+`CF` and `OF` should always set to 0.
+
 ## labs
 
 ### datalab
