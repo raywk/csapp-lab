@@ -60,6 +60,85 @@ Conditional move instructions.
 `Test` instruction executes logical AND for two operands, then set flags by the result.
 `CF` and `OF` should always set to 0.
 
+### Machine Prog: Procedures
+
+The design choices of mechanisms in procedures make up the **Application Binary Interface (ABI)**.
+
+#### Stack Structure
+
+`push` and `pop`
+![07push](/img/07push.png)
+
+![07pop](/img/07pop.png)
+
+#### Calling Conventions
+
+- Passing control
+- Passing data
+- Managing local data
+
+![07pcf](/img/07pcf.png)
+
+![07dataflow](/img/07dataflow.png)
+
+Stack allocated in *Frames*: state for single procedure instantiation, stores
+
+- Arguments
+- Local variables
+- Return pointer
+
+![07stackframe](/img/07stackframe.png)
+
+Register Saving Conventions
+*"Caller Saved"* v.s. *"Callee Saved"*
+
+![07reg_use_1](/img/07reg_use_1.png)
+
+![07reg_use_2](/img/07reg_use_2.png)
+
+### Machine Prog: Data
+
+#### Arrays
+
+![08ptr_and_arr](/img/08ptr_and_arr.png)
+
+*Nested* array vs *Multi-level* array
+![08nested_vs_multilevel](/img/08nested_vs_multilevel.png)
+
+2-D matrix
+![08nxnmatrix](/img/08nxnmatirx.png)
+
+2-D variable-size matrix
+![08vsa](/img/08vsa.png)
+
+#### Structures
+
+*Fields* ordered according to declaration order, even if a more compact ordering exists.
+
+Compiler determines overall size and positions of fields.
+
+An example of linked list:
+![08linkedlist](/img/08linkedlist.png)
+
+*Alignment*:
+![08align](/img/08align.png)
+
+![08alignexample](/img/08alignexample.png)
+
+For arrays of structures: no padding between array elements.
+
+To save space, put large data types first.
+![08save_space](/img/08save_space.png)
+
+#### Floating Point Basics
+
+Arguments passed in `%xmm0`, `%xmm1`, etc.
+Result returned in `%xmm0`, and all XMM registers are Caller Saved.
+
+![08fp](/img/08fp.png)
+
+### Machine Prog: Advanced
+
 ## labs
 
 ### datalab
