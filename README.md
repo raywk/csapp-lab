@@ -139,6 +139,136 @@ Result returned in `%xmm0`, and all XMM registers are Caller Saved.
 
 ### Machine Prog: Advanced
 
+#### Memory Layout
+
+![09mem_layout](/img/09mem_layout.png)
+
+#### Buffer Overflow
+
+*buffer overflow*: exceed the memory size allocated for an array.
+
+Mostly caused by unchecked lengths on string inputs.
+
+Take care of string libary code:
+`gets`: get string.
+`strcpy`, `strcat`: Copy strings of arbitrary length.
+`scanf`, `fscanf`, `sscanf`, when given `%s` conversion specification.
+
+The EOF `\0` itself also occupies a char.
+
+![09stacksmash](/img/09stacksmash.png)
+
+![09codeinject](/img/09codeinject.png)
+
+##### Avoid Overflow
+
+Use:
+`fgets` instead of `gets`.
+`strncpy` instead of `strcpy`.
+Don't use `scanf` with `%s` conversion specification: use `fgets` or use `%ns` where `n` is a suitable integer.
+
+System-Level protections include:
+
+1. **Randomized stack offsets**: at start of program, allocate random amount of space on stack and shifts stack addresses for entire program.
+2. **Non-executable memory**: x86-64 added a way to mark regions of memory as *not executable*, programs will crash on jumping into any such region.
+3. **Stack canaries**: place special value ("canary") on stack just beyond buffer and check for corruption before exiting function.
+
+for canary check:
+usually use `xor %fs:0x28,%rax` compare to canary.
+
+##### Return-Oriented Programming Attacks
+
+Stack randomization and marking stack non-executable makes it hard to predict buffer location and to insert binary code.
+
+Alternative strategy is to use existing code.
+
+`TODO`
+
+#### Unions
+
+![09union](/img/09union.png)
+
+### Design and Debugging
+
+### The Memory Hierarchy
+
+![10bus](/img/10bus.png)
+
+#### RAM
+
+RAM (Random-Access Memory) is the main memory building block, basic storage unit is normally a *cell* (one bit per cell).
+System "main memory" comprises multiple RAM chips.
+
+Two main varieties of RAM: SRAM (Static RAM), DRAM (Dynamic RAM).
+
+*DRAM*: 1 transistor + 1 capacitor per bit, must refresh state periodically.
+*SRAM*: 6 transistor per bit, holds state indefinitely.
+
+![10readDRAM](/img/10readDRAM.png)
+one block is one *supercell*
+
+![10DRAM](/img/10DRAM.png)
+
+#### Locality
+
+![10locality](/img/10locality.png)
+
+![10localityexample](/img/10localityexample.png)
+
+#### Memory Hierarchy
+
+Some properties of hardware and software:
+
+- Fast storage costs more per byte and has less capacity.
+- The gap between CPU and main memory speed is widening (CPU is getting faster and faster).
+- Well-written programs tend to exhibit good locality.
+
+These properties lead to an approach for organizing memory and storage systems known as a *memory hierarchy*.
+
+![10memoryhierarchy](/img/10memoryhierarchy.png)
+
+*Cache*: A smaller, faster storage device that acts as a staging area for a subset of the data in a larger slower device.
+
+Why cache?
+speed gap of two near storage layer + locality of programs
+
+![10cachevsmem](/img/10cachevsmem.png)
+
+placement policy and replacement policy.
+
+Cache Misses
+![10cachemiss](/img/10cachemiss.png)
+
+#### Storage technologies and trends
+
+`TODO`
+
+### Cache Memories
+
+#### Cache memory organization and operation
+
+![11concepts](/img/11concepts.png)
+
+![11set-asso_cache_org](/img/11set-asso_cache_org.png)
+
+![11cache_read](/img/11cache_read.png)
+
+![11direct_mapped_cache](/img/11direct_mapped_cache.png)
+
+![11direct_mapped_cache_sim](/img/11direct_mapped_cache_sim.png)
+
+![11e-way_set_asso_cache](/img/11e-way_set_asso_cache.png)
+
+![11two-way_set_asso_cache_sim](/img/11two-way_set_asso_cache_sim.png)
+
+![11cachewrite](/img/11cachewrite.png)
+
+`TODO`
+
+#### Performance impact of caches
+
+`TODO`
+
 ## labs
 
 ### datalab
