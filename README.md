@@ -241,7 +241,29 @@ Cache Misses
 
 #### Storage technologies and trends
 
-`TODO`
+Storage tech:
+
+- Magnetic Disks
+- Nonvolatile (Flash) Memory
+
+![10disk](/img/10disk.png)
+
+Disk access time = seek time + rotational latency + transfer time
+
+![10diskaccesstime](/img/10diskaccesstime.png)
+
+direct memory access (DMA)
+
+![10rom](/img/10rom.png)
+
+![10ssd](/img/10ssd.png)
+
+Synchronous DRAM (*SDRAM*): uses a conventional clock signal instead of asynchronous control.
+
+Double data-rate synchronous DRAM (*DDR SDRAM*):
+
+- Double edge clocking sends two bits per cycle per pin
+- Size of small perfetch buffer: DDR (2 bits), DDR2 (4 bits), DDR3 (8 bits), DDR4 (16bits), DDR5
 
 ### Cache Memories
 
@@ -263,11 +285,33 @@ Cache Misses
 
 ![11cachewrite](/img/11cachewrite.png)
 
-`TODO`
+If a line is evicted and dirty bit is set to 1, the entire block of $2^b$ bytes are written back to memory.
+
+Why index using middle bits?
+If use high bits indexing, then near addresses will be mapped into the same set.
+
+Why 99% hits is twice as good as 97%?
+97% hits: 1 cycle + 0.03 x 100 cycles = 4 cycles
+99% hits: 1 cycle + 0.01 x 100 cycles = 2 cycles
+This is why "miss rate" is used instead of "hit rate".
 
 #### Performance impact of caches
 
-`TODO`
+ *Read throughput* (read bandwidth): number of bytes read from memory per second (MB/s)
+
+![11mem_mountain](/img/11mem_mountain.png)
+
+![11matmul](/img/11matmul.png)
+
+![11block](/img/11block.png)
+
+No blocking: $(9/8) n^3$ misses
+Blocking: $(1/(4B)) n^3$ misses
+Use largest block size $B$, such that $B$ satisfies $3B^2 < C$.
+
+### Code Optimization
+
+
 
 ## labs
 
