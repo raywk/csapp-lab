@@ -288,11 +288,15 @@ Double data-rate synchronous DRAM (*DDR SDRAM*):
 If a line is evicted and dirty bit is set to 1, the entire block of $2^b$ bytes are written back to memory.
 
 Why index using middle bits?
+
 If use high bits indexing, then near addresses will be mapped into the same set.
 
 Why 99% hits is twice as good as 97%?
+
 97% hits: 1 cycle + 0.03 x 100 cycles = 4 cycles
+
 99% hits: 1 cycle + 0.01 x 100 cycles = 2 cycles
+
 This is why "miss rate" is used instead of "hit rate".
 
 #### Performance impact of caches
@@ -306,12 +310,83 @@ This is why "miss rate" is used instead of "hit rate".
 ![11block](/img/11block.png)
 
 No blocking: $(9/8) n^3$ misses
+
 Blocking: $(1/(4B)) n^3$ misses
+
 Use largest block size $B$, such that $B$ satisfies $3B^2 < C$.
 
 ### Code Optimization
 
+### Linking
 
+Why Linkers?
+
+*Modularity*:
+
+Programs can be written as a collection of smaller source files, rather than one monolithic mass.
+
+*Efficiency*:
+
+Time: separate compilation
+
+Space: libraries
+
+- *static linking*: executable files and running memory images contain only the library code they actually use.
+- *dynamic linking*: during execution, single copy of library code can be shared across all executing processes.
+
+What do linkers do?
+
+Symbol resolution
+
+*symbols*: global variables and functions.
+
+```c
+void swap() {...} /* define symbol swap */
+swap()            /* reference symbol swap */
+int *xp = &x;     /* define symbol xp, reference x */
+```
+
+Symbol definitions are stored in object file (by assembler) in *symbol table*, which is an array of entries, each entry includes name, size and location of symbol.
+
+Relocation
+
+Merges separate code and data sections into single sections.
+
+Relocates symbols from their relative locations in the `.o` files to their final absolute memory locations in the executable.
+
+Updates all references to these symbols to reflect their new positions.
+
+![13object_files](/img/13object_files.png)
+
+![13elf1](/img/13elf1.png)
+
+![13elf2](/img/13elf2.png)
+
+![13linker_symbols](/img/13linker_symbols.png)
+
+Local non-static C variables stored on the stack.
+
+Local static C variables stored in either `.bss` or `.data`.
+
+Create local symbols in the symbol table with unique names, e.g., `x`, `x.1721` and `x.1724`.
+
+*Strong symbols*: procedures and initialized globals.
+
+*Weak symbols*: uninitialized globals or ones declared with specifier `extern`.
+
+![13symbol_rules](/img/13symbol_rules.png)
+
+example of `extern` in `.h` files
+
+![13extern](/img/13extern.png)
+
+Relocation:
+
+![13relocation](/img/13relocation.png)
+
+`TODO: relocation rules`
+
+![13executable](/img/13executable.png)
 
 ## labs
 
