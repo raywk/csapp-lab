@@ -388,6 +388,34 @@ Relocation:
 
 ![13executable](/img/13executable.png)
 
+### Virtual Memory: Concepts
+
+![14vm_concepts](/img/14vm_concepts.png)
+
+*Linear address space*: Ordered set of contiguous non-negative integer addresses: $\{0, 1, 2, 3 \dots\}$.
+
+*Virtual address space*: Set of $N = 2^n$ virtual addresses: $\{0, 1, 2, 3, \dots, N-1\}$.
+
+*Physical address space*: Set of $M = 2^m$ physical addresses: $\{0, 1, 2, 3, \dots, M-1\}$.
+
+Why virtual memory?
+
+1. uses main memory efficiently (use DRAM as a cache for parts of a virtual address space).
+2. simplifies memory management: each process gets the same uniform linear address space.
+3. isolate address space.
+
+### Virtual Memory: Systems
+
+`TODO`
+
+### Dynamic Memory Allocation: Basic
+
+`TODO`
+
+### Dynamic Memory Allocation: Advanced
+
+`TODO`
+
 ## labs
 
 ### datalab
@@ -430,4 +458,3 @@ int z = ~y + 1;
 ### gdb
 
 ![misc_gdb](/img/misc_gdb.png)
-
