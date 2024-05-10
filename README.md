@@ -406,15 +406,15 @@ Why virtual memory?
 
 ### Virtual Memory: Systems
 
-`TODO`
+`TODO: lec15`
 
 ### Dynamic Memory Allocation: Basic
 
-`TODO`
+`TODO: lec16`
 
 ### Dynamic Memory Allocation: Advanced
 
-`TODO`
+`TODO: lec17`
 
 ## labs
 

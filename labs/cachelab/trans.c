@@ -22,6 +22,77 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+    int a, b, c, d, e, f, g, h;
+
+    if (M == 32) {
+        for (int i = 0; i < N; i += 8) {
+            for (int j = 0; j < M; j += 8) {
+                for (int k = 0; k < 8; k++) {
+                    a = A[i + k][j];
+                    b = A[i + k][j + 1];
+                    c = A[i + k][j + 2];
+                    d = A[i + k][j + 3];
+                    e = A[i + k][j + 4];
+                    f = A[i + k][j + 5];
+                    g = A[i + k][j + 6];
+                    h = A[i + k][j + 7];
+                    B[j + k][i] = a;
+                    B[j + k][i + 1] = b;
+                    B[j + k][i + 2] = c;
+                    B[j + k][i + 3] = d;
+                    B[j + k][i + 4] = e;
+                    B[j + k][i + 5] = f;
+                    B[j + k][i + 6] = g;
+                    B[j + k][i + 7] = h;
+                }
+                for (int k = 0; k < 8; k++) {
+                    for (int l = 0; l < k; l++) {
+                        a = B[j + k][i + l];
+                        B[j + k][i + l] = B[j + l][i + k];
+                        B[j + l][i + k] = a;
+                    }
+                }
+            }
+        }
+    }
+
+    if (M == 64) {
+        for (int i = 0; i < N; i += 4) {
+            for (int j = 0; j < M; j += 4) {
+                for (int k = 0; k < 4; k++) {
+                    a = A[i + k][j];
+                    b = A[i + k][j + 1];
+                    c = A[i + k][j + 2];
+                    d = A[i + k][j + 3];
+                    B[j + k][i] = a;
+                    B[j + k][i + 1] = b;
+                    B[j + k][i + 2] = c;
+                    B[j + k][i + 3] = d;
+                }
+
+                for (int k = 0; k < 4; k++) {
+                    for (int l = 0; l < k; l++) {
+                        a = B[j + k][i + l];
+                        B[j + k][i + l] = B[j + l][i + k];
+                        B[j + l][i + k] = a;
+                    }
+                }
+            }
+        }
+    }
+
+    if (M == 61) {
+        for (int i = 0; i < N; i += 14) {
+            for (int j = 0; j < M; j += 14) {
+                for (int k = i; k < i + 14 && k < N; k++) {
+                    for (int l = j; l < j + 14 && l < M; l++) {
+                        a = A[k][l];
+                        B[l][k] = a;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* 
