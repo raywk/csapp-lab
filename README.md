@@ -3,9 +3,12 @@
 This is a repo contains my approach to csapp self-study labs and notes for the course 15-213 lecture\reading.
 
 Resource:
+
 [15-213/15-513 Introduction to Computer Systems](https://www.cs.cmu.edu/%7E213/schedule.html)
 
 [CS:APP3e Lab Assignments](https://csapp.cs.cmu.edu/3e/labs.html)
+
+[《深入理解计算机系统》中文电子版](https://hansimov.gitbook.io/csapp)
 
 [TOC]
 
@@ -415,6 +418,200 @@ Why virtual memory?
 ### Dynamic Memory Allocation: Advanced
 
 `TODO: lec17`
+
+### ECF: Processes and Multitasking
+
+#### Processes
+
+Definition: A *process* is an instance of a running program.
+
+Process provides each program with two key abstractions:
+
+- Private address space
+- Logical control flow
+
+From startup to shutdown, each CPU core simply reads and executes a sequence of machine instructions, one at a time, this sequence is the CPU's *control flow*.
+
+Control flow passes from one process to another via a *context switch*.
+
+#### System Calls
+
+syscall example:
+
+- read/write files
+- get current time
+- allocate RAM (sbrk)
+
+Almost all system-level operations can fail. On error, most system-level functions retuan -1 and set global variable `errno` to indicate cause.
+
+![18error_handling](/img/18error_handling.png)
+
+#### Process Control
+
+Obtaining process IDs:
+
+```c
+pid_t getpid(void); // return PID of current process
+
+pid_t getppid(void); // return PID of parent process
+```
+
+Process states:
+
+- Running: either executing or *could be* executing if there were enough CPU cores.
+- Blocked/Sleeping: cannot execute until some external event happens (usually I/O).
+- Stopped: has been prevented from executing by user action (Ctrl + Z).
+- Terminated/Zombie: process is finished and parent process has not yet been notified.
+
+*Parent process* creates a new runnig *child process* by calling *fork*.
+
+```c
+int fork(void);
+```
+
+returns 0 to the child process, child's PID to parent process.
+
+called *once* but returns *twice*.
+
+![18fork](/img/18fork.png)
+
+![18reap_child](/img/18reap_child.png)
+
+If child process exits without notifying the parent process, then it becomes a "zombie", make sure `wait` or `waitpid` has been used to terminate child.
+
+![18wait](/img/18wait.png)
+
+![18execve](/img/18execve.png)
+
+![18execve_example](/img/18execve_example.png)
+
+![18execve_stack](/img/18execve_stack.png)
+
+![18execve_memory_layout](/img/18execve_memory_layout.png)
+
+#### Shells
+
+A *shell* is an application program that runs programs on behalf of the user
+
+![18shell_example](/img/18shell_example.png)
+
+### ECF: Exceptional Control Flow
+
+Up to now: two mechanisms for changing control flow:
+
+- jumps and branches
+- call and return
+
+react to changes in *program state*
+
+Insufficient for a useful system: difficult to react to changes in *system state*
+
+- data arrives from a disk or a network adapter
+- instruction divides by zero
+- user hits Ctrl-C at the keyboard
+- system timer expires
+
+That is why system needs mechanisms for "exceptional control flow".
+
+![19ecf](/img/19ecf.png)
+
+#### Exceptions
+
+An *exception* is a transfer of control to OS *kernel* in response to some *event*.
+
+- Kernel is the memory-resident part of the OS
+- Examples of events: divide by 0, arithmetic overflow, page fault, I/O request completes, typing Ctrl-C
+
+there is an exception table in memory
+
+- Asynchronous ECF
+  - Interrupts
+- Synchronous ECF
+  - Traps
+  - Faults
+  - Aborts
+
+![19asyn_ecf](/img/19asyn_ecf.png)
+
+![19syn_ecf](/img/19syn_ecf.png)
+
+![19syscall](/img/19syscall.png)
+
+#### Signals
+
+ECF exists at all levels of a system
+
+- exceptions: hardware and operating system kernel software
+- process context switch: hardware timer and kernel software
+- signals: kernel software and application software
+- nonlocal jumps: application code
+
+The kernel will interrupt regular processing to alert us when a background process completes. In Unix, the alert mechanism is called a *signal*.
+
+![19signals](/img/19signals.png)
+
+Kernel *sends* a signal to a *destination process* by updating some state in the context of the destination process.
+
+![19receive_signal](/img/19receive_signal.png)
+
+![19pending/blocked_signal](/img/19pending_and_blocked_signal.png)
+
+Kernel maintains `pending` and `blocked` bit vectors in the context of each process
+
+- `pending`: represents the set of pending signals
+  - Kernel sets bit k in `pending` when a signal of type k is sent
+  - Kernel clears bit k in `pending` when a signal of type k is received
+- `blocked`: represents the set of blocked signals
+  - Can be set and cleared by using the `sigprocmask` function
+  - Also referred to as the `signal mask`
+
+![19process_group](/img/19process_group.png)
+
+Typing ctrl-c (ctrl-z) causes the kernel to send a SIGINT (SIGTSTP) to every job in the foreground process group
+
+- SIGINT - default action is to **terminate** each process
+- SIGTSTP - default action is to stop (**suspend**) each process
+
+Kernel computes `pnb = pending & ~blocked`
+
+![19receive_signal_2](/img/19receive_signal_2.png)
+
+Each signal type has a predefined *default action*, which is one of:
+
+- The process terminates
+- The process stops until restarted by a SIGCONT signal
+- The process ignores the signal
+
+![19signal_handler](/img/19signal_handler.png)
+
+![19nested_signal_handler](/img/19nested_signal_handler.png)
+
+![19blocking_and_unblocking_signal](/img/19blocking_and_unblocking_signal.png)
+
+![19how_to_write_handler](/img/19how_to_write_handler.png)
+
+signal 处理流程
+![19signal_handler_2](/img/19signal_handler_2.png)
+
+Function is *async-signal-safe* if either reentrant or non-interruptible by signals.
+
+on the list:
+
+`_exit`, `write`, `wait`, `waitpid`, `sleep`, `kill`
+
+not on the list:
+
+`printf`, `sprintf`, `malloc`, `exit`
+
+`TODO: waiting for signals`
+
+#### Nonlocal Jumps
+
+![19nonlocal_jumps](/img/19nonlocal_jumps.png)
+
+![19nonlocal_jumps_2](/img/19nonlocal_jumps_2.png)
+
+`TODO: examples`
 
 ## labs
 
