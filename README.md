@@ -481,6 +481,12 @@ If child process exits without notifying the parent process, then it becomes a "
 
 ![18wait](/img/18wait.png)
 
+关于 `waitpid`:
+
+![18waitpid](/img/18waitpid.png)
+
+`wait(&status)` is equivalent to `waitpid(-1, &status, 0)`.
+
 ![18execve](/img/18execve.png)
 
 ![18execve_example](/img/18execve_example.png)
@@ -582,15 +588,40 @@ Each signal type has a predefined *default action*, which is one of:
 - The process stops until restarted by a SIGCONT signal
 - The process ignores the signal
 
+进程可以通过使用 signal 函数修改和信号相关联的默认行为。唯一的例外是 SIGSTOP 和 SIGKILL，它们的默认行为是不能修改的。
+
 ![19signal_handler](/img/19signal_handler.png)
 
+**隐私阻塞机制**：主程序捕获到信号 s，该信号会中断主程序，将控制转移到处理程序 S。S 在运行时，程序捕获信号 t≠s，该信号会中断 S，控制转移到处理程序 T。当 T 返回时，S 从它被中断的地方继续执行。最后，S 返回，控制传送回主程序，主程序从它被中断的地方继续执行。
 ![19nested_signal_handler](/img/19nested_signal_handler.png)
 
+**显式阻塞机制**：应用程序可以使用 sigprocmask 函数和它的辅助函数，明确地阻塞和解除阻塞选定的信号。
 ![19blocking_and_unblocking_signal](/img/19blocking_and_unblocking_signal.png)
+
+```c
+#include <signal.h>
+
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
+int sigemptyset(sigset_t *set);
+int sigfillset(sigset_t *set);
+int sigaddset(sigset_t *set, int signum);
+int sigdelset(sigset_t *set, int signum);
+//返回；如果成功则为 0，若出错则为 -1。
+
+int sigismember(const sigset_t *set, int signum);
+// 返回：若 signum 是 set 的成员则为 1，如果不是则为 0，若出错则为 -1。
+```
+
+sigprocmask 函数改变当前阻塞的信号集合。具体的行为依赖于 how 的值：
+
+- SIG_BLOCK: 把 set 中的信号添加到 blocked 中 (blocked = blocked | set)。
+- SIG_UNBLOCK: 把 blocked 中删除 set 中的信号 (blocked = blocked & ~set)。
+- SIG_SETMASK: block = set。
 
 ![19how_to_write_handler](/img/19how_to_write_handler.png)
 
 signal 处理流程
+
 ![19signal_handler_2](/img/19signal_handler_2.png)
 
 Function is *async-signal-safe* if either reentrant or non-interruptible by signals.
@@ -603,7 +634,32 @@ not on the list:
 
 `printf`, `sprintf`, `malloc`, `exit`
 
-`TODO: waiting for signals`
+信号的一个与直觉不符的方面是未处理的信号是不排队的。因为 `pending` 位向量中每种类型的信号只对应有一位，所以每种类型最多只能有一个未处理的信号。因此，如果两个类型 k 的信号发送给一个目的进程，而因为目的进程当前正在执行信号 k 的处理程序，所以信号 k 被阻塞了，那么第二个信号就简单地被丢弃了，它不会排队。
+
+![19incorrect_signal_handling](/img/19incorrect_signal_handling.png)
+
+![19correct](/img/19correct.png)
+
+正确使用 `sigprocmask` 函数和它的辅助函数消除竞争
+
+![19correct2](/img/19correct2.png)
+
+Explicitly waiting for signals
+
+![19explicitly_waiting_for_signals](/img/19explicitly_waiting_for_signals.png)
+
+use `sigsuspend`:
+
+```c
+int sigsuspend(const sigset_t *mask);
+
+// Equivalent to atomic version of:
+sigprocmask(SIG_SETMASK, &mask, &prev);
+pause();
+sigprocmask(SIG_SETMASK, &prev, NULL);
+```
+
+![19sigsuspend](/img/19sigsuspend.png)
 
 #### Nonlocal Jumps
 
